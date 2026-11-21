@@ -15,7 +15,7 @@ import asyncio
 import random
 import re
 from email.utils import parsedate_to_datetime
-from typing import Any
+from typing import Any, cast
 
 import httpx
 
@@ -60,19 +60,21 @@ class HttpClient:
         if self._owns_client:
             await self._client.aclose()
 
-    async def post_json(self, url: str, body: Any, extra_headers: dict | None = None) -> dict:
+    async def post_json(
+        self, url: str, body: Any, extra_headers: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         response = await self._request("POST", url, body=body, extra_headers=extra_headers)
         if response.status_code == 204:
             return {}
-        return response.json()
+        return cast(dict[str, Any], response.json())
 
     async def get_json(
         self,
         url: str,
         *,
-        params: dict | None = None,
-        extra_headers: dict | None = None,
-    ) -> dict:
+        params: dict[str, Any] | None = None,
+        extra_headers: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """GET helper that returns parsed JSON.
 
         Goes through the standard retry / token-rotation loop so 401 →
@@ -83,16 +85,16 @@ class HttpClient:
         )
         if response.status_code == 204:
             return {}
-        return response.json()
+        return cast(dict[str, Any], response.json())
 
     async def long_poll_get(
         self,
         url: str,
         *,
-        params: dict | None = None,
-        extra_headers: dict | None = None,
+        params: dict[str, Any] | None = None,
+        extra_headers: dict[str, Any] | None = None,
         timeout: float = 35.0,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """long-poll GET with an extended per-request timeout.
 
         The server holds for up to 30 s; the client must
@@ -125,7 +127,7 @@ class HttpClient:
         if 200 <= response.status_code < 300:
             if response.status_code == 204:
                 return {}
-            return response.json()
+            return cast(dict[str, Any], response.json())
 
         raise self._raise_error(response, url)
 
@@ -137,8 +139,8 @@ class HttpClient:
         method: str,
         url: str,
         body: Any = None,
-        extra_headers: dict | None = None,
-        params: dict | None = None,
+        extra_headers: dict[str, Any] | None = None,
+        params: dict[str, Any] | None = None,
     ) -> httpx.Response:
         attempt = 0
         token_retried = False
@@ -188,8 +190,8 @@ class HttpClient:
         method: str,
         url: str,
         body: Any,
-        extra_headers: dict | None,
-        params: dict | None = None,
+        extra_headers: dict[str, Any] | None,
+        params: dict[str, Any] | None = None,
     ) -> httpx.Response:
         headers = {
             "Authorization": f"Bearer {self._tokens.current()}",
@@ -215,7 +217,7 @@ class HttpClient:
 
     def _raise_error(self, response: httpx.Response, url: str) -> OverturoApiError:
         request_id = response.headers.get("x-request-id")
-        body: dict = {}
+        body: dict[str, Any] = {}
         try:
             body = response.json()
         except ValueError:
@@ -223,10 +225,9 @@ class HttpClient:
 
         error = body.get("error") if isinstance(body, dict) else None
         reason_code = error.get("reason_code") if isinstance(error, dict) else None
-        message = (
-            error.get("message")
-            if isinstance(error, dict)
-            else f"HTTP {response.status_code} on {url}"
+        # An error body without a message still raises with one.
+        message = (error.get("message") if isinstance(error, dict) else None) or (
+            f"HTTP {response.status_code} on {url}"
         )
         detail = error.get("detail") if isinstance(error, dict) else None
 
@@ -256,7 +257,7 @@ class HttpClient:
 
 
 def _backoff_seconds(attempt: int) -> float:
-    base = min(1.0 * 2 ** (attempt - 1), 30.0)
+    base: float = min(1.0 * 2 ** (attempt - 1), 30.0)
     return base + random.uniform(0, 0.25)
 
 

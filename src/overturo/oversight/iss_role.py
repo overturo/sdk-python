@@ -9,9 +9,13 @@ receipt — fail closed.
 
 from __future__ import annotations
 
+from typing import Literal
+
+TrustWeight = Literal["strong", "witness_only", "approval_url"]
+
 ISS_ROLES: tuple[str, ...] = ("authorizer", "witness", "approval_url_signer")
 
-ISS_ROLE_TO_TRUST_WEIGHT: dict[str, str] = {
+ISS_ROLE_TO_TRUST_WEIGHT: dict[str, TrustWeight] = {
     "authorizer": "strong",
     "witness": "witness_only",
     "approval_url_signer": "approval_url",

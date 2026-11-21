@@ -270,6 +270,13 @@ class FlowDisclosureLocale(TypedDict):
     fallback: Literal["en"]
 
 
+class FlowDisclosureLanguage(TypedDict):
+    """A language a flow can be shown in: its tag ("fr", "pt-BR") and its name in itself."""
+
+    tag: str
+    name: str
+
+
 class FlowDisclosures(TypedDict):
     schema: str
     flow: FlowDisclosureFlow
@@ -282,6 +289,8 @@ class FlowDisclosures(TypedDict):
     expiry: FlowDisclosureExpiry
     locale: FlowDisclosureLocale
     revision: str
+    # The languages the flow can be shown in; a requested locale selects among them.
+    languages: list[FlowDisclosureLanguage]
 
 
 # ══════════════════════════════════════════════════════════════════════

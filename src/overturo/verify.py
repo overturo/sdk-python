@@ -18,6 +18,7 @@ import json
 import re
 import threading
 import time
+from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
@@ -33,7 +34,7 @@ from .oversight.iss_role import ISS_ROLE_TO_TRUST_WEIGHT, is_valid_iss_role
 
 @dataclass
 class _CachedJwks:
-    keys: list[dict]
+    keys: list[dict[str, Any]]
     expires_at: float
 
 
@@ -47,7 +48,7 @@ class JwksCache:
     """
 
     _entries: dict[str, _CachedJwks]
-    _inflight: dict[str, asyncio.Future[list[dict]]]
+    _inflight: dict[str, asyncio.Future[list[dict[str, Any]]]]
     _default_ttl: float
     _lock: threading.Lock
 
@@ -57,7 +58,9 @@ class JwksCache:
         self._default_ttl = default_ttl_seconds
         self._lock = threading.Lock()
 
-    async def fetch(self, jwks_url: str, client: httpx.AsyncClient | None = None) -> list[dict]:
+    async def fetch(
+        self, jwks_url: str, client: httpx.AsyncClient | None = None
+    ) -> list[dict[str, Any]]:
         with self._lock:
             cached = self._entries.get(jwks_url)
             if cached and cached.expires_at > time.time():
@@ -66,7 +69,7 @@ class JwksCache:
             if inflight is not None:
                 # Hand off to the existing in-flight fetch.
                 return await asyncio.shield(inflight)
-            future: asyncio.Future[list[dict]] = asyncio.get_event_loop().create_future()
+            future: asyncio.Future[list[dict[str, Any]]] = asyncio.get_event_loop().create_future()
             self._inflight[jwks_url] = future
 
         try:
@@ -84,20 +87,21 @@ class JwksCache:
                 future.set_result(keys)
             return keys
 
-    async def _do_fetch(self, jwks_url: str, client: httpx.AsyncClient | None = None) -> list[dict]:
+    async def _do_fetch(
+        self, jwks_url: str, client: httpx.AsyncClient | None = None
+    ) -> list[dict[str, Any]]:
         owns_client = client is None
-        if owns_client:
-            client = httpx.AsyncClient(timeout=10.0)
+        http = client if client is not None else httpx.AsyncClient(timeout=10.0)
         try:
-            response = await client.get(jwks_url)
+            response = await http.get(jwks_url)
         except httpx.HTTPError as e:
             raise ReceiptInvalid(
                 "jwks_fetch_failed",
                 f"Network error fetching JWKS at {jwks_url}: {e}",
             ) from e
         finally:
-            if owns_client and client is not None:
-                await client.aclose()
+            if owns_client:
+                await http.aclose()
 
         if response.status_code >= 400:
             raise ReceiptInvalid(
@@ -133,7 +137,7 @@ class JwksCache:
         jwks_url: str,
         kid: str,
         client: httpx.AsyncClient | None = None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         keys = await self.fetch(jwks_url, client=client)
         for k in keys:
             if k.get("kid") == kid:
@@ -162,7 +166,7 @@ async def verify_receipt(
     jwt: str,
     *,
     jwks_url: str | None = None,
-    jwks: dict | None = None,
+    jwks: dict[str, Any] | None = None,
     clock_skew_seconds: int = 300,
     http_client: httpx.AsyncClient | None = None,
     expected_issuer: Any | None = None,  # str | list[str]
@@ -251,15 +255,15 @@ def _parse_jwt(jwt: str) -> tuple[dict[str, Any], dict[str, Any], bytes, bytes]:
     return header, payload, signed, signature
 
 
-def _find_key_in_jwks(jwks: dict, kid: str) -> dict:
-    keys = jwks.get("keys", [])
+def _find_key_in_jwks(jwks: dict[str, Any], kid: str) -> dict[str, Any]:
+    keys: list[dict[str, Any]] = jwks.get("keys", [])
     for k in keys:
         if k.get("kid") == kid:
             return k
     raise ReceiptInvalid("unknown_kid", f"JWKS has no key with kid={kid}")
 
 
-def _verify_ed25519(signed: bytes, signature: bytes, key: dict) -> None:
+def _verify_ed25519(signed: bytes, signature: bytes, key: dict[str, Any]) -> None:
     if key.get("kty") != "OKP" or key.get("crv") != "Ed25519":
         raise ReceiptInvalid(
             "unsupported_algorithm",
@@ -280,7 +284,7 @@ def _verify_ed25519(signed: bytes, signature: bytes, key: dict) -> None:
 
 
 def _validate_issuer_audience(
-    payload: dict,
+    payload: dict[str, Any],
     *,
     expected_issuer: Any,
     audience: Any,
@@ -309,7 +313,7 @@ def _validate_issuer_audience(
             )
 
 
-def _validate_temporal(payload: dict, clock_skew_seconds: int) -> None:
+def _validate_temporal(payload: dict[str, Any], clock_skew_seconds: int) -> None:
     now = int(time.time())
 
     iat = payload.get("iat")
@@ -355,8 +359,8 @@ def verify_receipt_offline(
     jwt: str,
     *,
     audience: str,
-    accepted_issuers,
-    jwks,
+    accepted_issuers: Iterable[str],
+    jwks: Iterable[JwksKey],
     skew_seconds: int = 30,
     at: float | None = None,
 ) -> OfflineVerifyResult:

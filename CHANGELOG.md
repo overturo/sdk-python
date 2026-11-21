@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2.1.0 (2026-11-21)
+### Added
+- `FlowDisclosures["languages"]` (`discover`): the languages a flow can be shown in, each a `FlowDisclosureLanguage` (`tag`, and `name` in itself). A requested locale selects among them, and a flow is never shown in another.
+### Fixed
+- An error response whose body carries no message raised its exception with none (`None`); it now raises with `HTTP <status> on <url>`, as a body that is not an error object does.
+### Changed
+- Vendored corpus refreshed: the flow disclosures carry `languages`; the recordings follow the platform's hosted consent forms.
+- The package type-checks clean under mypy 2: generic parameters on every `dict`, `ISS_ROLE_TO_TRUST_WEIGHT` typed by its closed set of weights (`TrustWeight`), `verify_receipt_offline`'s `accepted_issuers` and `jwks` annotated. No runtime change.
+
 ## 2.0.0 (2026-10-26)
 ### Changed — public names, before the first registry publish
 - The audit-record pointer is `record_id` everywhere (`OverturoDecision.record_id`, the receipt claim, the audit-trail entries); `chronicle_id` is gone from the wire and the models — nothing is dual-emitted.

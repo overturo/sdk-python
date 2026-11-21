@@ -73,9 +73,31 @@
           "resolved": "en",
           "fallback": "en"
         },
-        "revision": "<OPAQUE>"
+        "revision": "<OPAQUE>",
+        "languages": [
+          {
+            "tag": "en",
+            "name": "English"
+          },
+          {
+            "tag": "de",
+            "name": "Deutsch"
+          },
+          {
+            "tag": "es",
+            "name": "Español"
+          },
+          {
+            "tag": "fr",
+            "name": "Français"
+          },
+          {
+            "tag": "it",
+            "name": "Italiano"
+          }
+        ]
       }
     }
   },
-  "document": "933a97174969ed70"
+  "document": "7303852d55f17d16"
 }

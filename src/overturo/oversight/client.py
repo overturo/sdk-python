@@ -25,18 +25,16 @@ import httpx
 from .._http import HttpClient
 from .._logger import Logger
 from ..errors import OverturoConfigError
+from ..models import AttestResult, EscalateResult, RevokeResult
 from .discovery import Discovery
 from .heartbeat import HeartbeatManager
 from .sequence import SequenceManager
 from .token import TokenManager
 from .types import (
-    AttestResult,
     Decision,
-    EscalateResult,
     LegalBasis,
     RevocationReason,
     RevocationScope,
-    RevokeResult,
 )
 
 SDK_DEFAULT_OAP_VERSION = "1.0"

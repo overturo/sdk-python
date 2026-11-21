@@ -50,8 +50,8 @@ def _redact(value: str | None) -> str:
     return _TOKEN_PATTERN.sub("tat_<redacted>", value)
 
 
-def _redact_kwargs(kwargs: dict) -> dict:
-    out: dict = {}
+def _redact_kwargs(kwargs: dict[str, Any]) -> dict[str, Any]:
+    out: dict[str, Any] = {}
     for k, v in kwargs.items():
         out[k] = _scrub(v)
     return out

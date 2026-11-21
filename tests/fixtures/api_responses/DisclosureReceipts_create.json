@@ -24,7 +24,7 @@
         "record_id": "<PREFIX_ID:3>",
         "record": {
           "record": {
-            "schema_version": "overturo-cr/2.14",
+            "schema_version": "overturo-cr/2.15",
             "conforms_to": "ISO/IEC TS 27560:2023",
             "record_id": "<PREFIX_ID:3>",
             "record_type": "notice_record",
@@ -116,5 +116,5 @@
       }
     }
   },
-  "document": "933a97174969ed70"
+  "document": "7303852d55f17d16"
 }

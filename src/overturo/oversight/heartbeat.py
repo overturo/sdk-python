@@ -33,7 +33,7 @@ class HeartbeatManager:
         self._url = heartbeat_url
         self._cadence = cadence_seconds
         self._logger = logger
-        self._task: asyncio.Task | None = None
+        self._task: asyncio.Task[None] | None = None
         self._stop_event = asyncio.Event()
 
     def start(self) -> None:

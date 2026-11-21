@@ -43,15 +43,14 @@ class Discovery:
         url = _join_url(base_url, "/.well-known/openid-configuration")
 
         owns_client = http_client is None
-        if owns_client:
-            http_client = httpx.AsyncClient(timeout=10.0)
+        http = http_client if http_client is not None else httpx.AsyncClient(timeout=10.0)
         try:
-            response = await http_client.get(url)
+            response = await http.get(url)
         except httpx.HTTPError as e:
             raise OverturoNetworkError(f"Discovery fetch failed: {e}") from e
         finally:
-            if owns_client and http_client is not None:
-                await http_client.aclose()
+            if owns_client:
+                await http.aclose()
 
         if response.status_code >= 400:
             raise OverturoNetworkError(f"Discovery fetch returned HTTP {response.status_code}")

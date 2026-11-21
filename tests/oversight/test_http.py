@@ -81,6 +81,17 @@ async def test_422_maps_to_validation_error(http_factory):
 
 @pytest.mark.asyncio
 @respx.mock
+async def test_error_without_a_message_still_raises_with_one(http_factory):
+    respx.post(URL).respond(422, json={"error": {"reason_code": "validation_failed"}})
+    http = http_factory(tokens=TokenManager("tat_dev_initial"))
+    with pytest.raises(OverturoValidationError) as raised:
+        await http.post_json(URL, {})
+    assert str(raised.value) == f"HTTP 422 on {URL}"
+    assert raised.value.reason_code == "validation_failed"
+
+
+@pytest.mark.asyncio
+@respx.mock
 async def test_500_maps_to_server_error_after_retries_exhausted(http_factory):
     respx.post(URL).respond(500, json={"error": {"reason_code": "internal_error"}})
     http = http_factory(tokens=TokenManager("tat_dev_initial"), max_retries=0)

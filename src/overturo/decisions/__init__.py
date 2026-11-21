@@ -5,6 +5,8 @@ via custom channels (Slack, email, SMS). The `subscribe` long-poll
 generator streams decision-status transitions until terminal.
 """
 
+import asyncio  # noqa: F401 — re-exported for test mocking, below
+
 from ..models import DecisionStatus, DecisionToken, Escalation, FlowDisclosures
 
 # Re-exported for test mocking — `decisions.asyncio.sleep` is the
@@ -21,7 +23,6 @@ from ..models import DecisionStatus, DecisionToken, Escalation, FlowDisclosures
 from .client import (
     _poll_status_async,  # noqa: F401
     _token_for_async,  # noqa: F401
-    asyncio,  # noqa: F401
     discover,
     poll_status,
     subscribe,
