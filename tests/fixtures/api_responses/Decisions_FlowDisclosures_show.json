@@ -27,6 +27,7 @@
         "application": {
           "name": "Corpus Application",
           "primary_color": "#0d3a78",
+          "label_color": "#ffffff",
           "logo_url": null
         },
         "purposes": [
@@ -99,5 +100,5 @@
       }
     }
   },
-  "document": "7303852d55f17d16"
+  "document": "bbada78e973ca939"
 }

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2.2.0 (2026-11-22)
+### Added
+- `FlowDisclosureApplication["label_color"]` (`discover`): the colour of text drawn on the brand colour, white or near-black, whichever reads. A button of your own in `primary_color` takes it for its text, and an edge in it when your page's background is below 3:1 against `primary_color`.
+### Changed
+- Vendored corpus refreshed: the flow disclosures carry `label_color`.
+
 ## 2.1.0 (2026-11-21)
 ### Added
 - `FlowDisclosures["languages"]` (`discover`): the languages a flow can be shown in, each a `FlowDisclosureLanguage` (`tag`, and `name` in itself). A requested locale selects among them, and a flow is never shown in another.

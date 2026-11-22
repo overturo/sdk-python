@@ -228,6 +228,8 @@ class FlowDisclosureFlow(TypedDict):
 class FlowDisclosureApplication(TypedDict):
     name: str
     primary_color: str | None
+    # The colour of text drawn on primary_color: white or near-black.
+    label_color: str | None
     logo_url: str | None
 
 

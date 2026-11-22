@@ -10,6 +10,7 @@
     "application": {
       "name": "Northwind Health",
       "primary_color": "#0b5fff",
+      "label_color": "#ffffff",
       "logo_url": null
     },
     "purposes": [

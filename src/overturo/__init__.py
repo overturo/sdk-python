@@ -10,7 +10,7 @@ exposes the authorize-side public symbols plus the cross-cutting
 errors / models / verify so the relocated tests pass.
 """
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 
 from . import consent_records, decisions, meetings, receipts
 from .authorize import (

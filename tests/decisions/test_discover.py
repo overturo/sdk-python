@@ -49,6 +49,7 @@ def test_discover_decodes_the_shared_fixture() -> None:
     assert result["schema"] == "overturo-disclosure/1"
     assert result["flow"]["kind"] == "consent"
     assert result["application"]["primary_color"] == "#0b5fff"
+    assert result["application"]["label_color"] == "#ffffff"
     assert result["expiry"]["consent_duration_days"] == 365
     assert result["locale"]["fallback"] == "en"
     purpose = next(p for p in result["purposes"] if p["name"] == "care_reminders")
